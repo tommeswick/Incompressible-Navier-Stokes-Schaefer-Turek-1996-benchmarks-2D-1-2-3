@@ -514,19 +514,17 @@ private:
   double timestep, theta, time; 
   std::string time_stepping_scheme;
 
-  double force_fluid_x, force_fluid_y;	  
-  
-
-  double volume_source, traction_x, traction_y, traction_x_biot, traction_y_biot;
-  
-  // Fluid parameters
-  double density_fluid, kinematic_viscosity;
-
   SparseDirectUMFPACK A_direct;
 
   std::string test_case;
 
   std::string filename_basis;
+
+  // Right hand side values
+  double force_fluid_x, force_fluid_y;	  
+   
+  // Fluid parameters
+  double density_fluid, kinematic_viscosity;
 
 
 };
@@ -622,11 +620,6 @@ void StepFlowNSE<dim>::set_runtime_parameters ()
   // Right hand side flow equation, e.g., gravity
   force_fluid_x = 0.0;
   force_fluid_y = 0.0;
-
-  // Traction - not in use here
-  traction_x = 0.0;
-  traction_y = 0.0;
-
   
   // A variable to count the number of time steps
   timestep_number = 0;
@@ -665,12 +658,7 @@ void StepFlowNSE<dim>::setup_system ()
   dof_handler.distribute_dofs (fe);  
   DoFRenumbering::Cuthill_McKee (dof_handler);
 
-  // We are dealing with 5 components for this 
-  // two-dimensional Biot problem
-  // (the first component is actually unnecessary 
-  // and a relict from the original fluid-structure 
-  // interaction code. But this component 
-  // might be used for future extensions with other equations.
+  // We are dealing with 3 components (vx,vy,p) divided into 2 blocks:
   // velocity in x and y:                0
   // scalar pressure field:              1
   std::vector<unsigned int> block_component (3,0);
@@ -1879,7 +1867,3 @@ int main ()
 
   return 0;
 }
-
-
-
-
